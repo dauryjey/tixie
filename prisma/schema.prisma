@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @unique @default(uuid())
+  name         String
+  identity_doc String @unique
+  email        String
+  
+  sales        Sale[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+/*   TODO: IMPLEMENT AUTH */
+}
+
+model Sale {
+  id String @unique @default(uuid())
+  title String
+  price Float
+
+  ticket  Ticket[]
+
+  seller User @relation(fields: [seller_id], references: [id])  
+  seller_id String
+
+/*   TODO: LINK WITH SPOTIFY API */
+}
+
+model Ticket {
+  id String @unique @default(uuid())
+  encryptedCode String
+  
+  sale    Sale  @relation(fields: [sale_id], references: [id])
+  sale_id String
+}
+
+/*   TODO: IMPLEMENT BIDS FOR SALES */

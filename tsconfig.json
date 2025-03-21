@@ -4,7 +4,10 @@
   "files": [],
   "references": [
     {
-      "path": "./apps/api"
+      "path": "./libs/db"
+    },
+    {
+      "path": "./apps/auth"
     }
   ]
 }
