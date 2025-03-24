@@ -1,7 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"auth/config"
+	"fmt"
+)
 
 func main() {
+	config.InitGlobalEnv()
+
 	fmt.Println("Hello auth!")
 }
