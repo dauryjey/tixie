@@ -7,38 +7,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           String    @unique @default(uuid())
+model users {
+  id           String @unique @default(uuid())
   name         String
   identity_doc String @unique
-  email        String
-  
-  sales        Sale[]
+  email        String @unique
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-/*   TODO: IMPLEMENT AUTH */
+  sales sales[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  /**
+   * TODO: IMPLEMENT AUTH
+   */
 }
 
-model Sale {
-  id String @unique @default(uuid())
+model sales {
+  id    String @unique @default(uuid())
   title String
   price Float
 
-  ticket  Ticket[]
+  ticket tickets[]
 
-  seller User @relation(fields: [seller_id], references: [id])  
+  seller    users  @relation(fields: [seller_id], references: [id])
   seller_id String
 
-/*   TODO: LINK WITH SPOTIFY API */
+  /**
+   * TODO: LINK WITH SPOTIFY API
+   */
 }
 
-model Ticket {
-  id String @unique @default(uuid())
+model tickets {
+  id            String @unique @default(uuid())
   encryptedCode String
-  
-  sale    Sale  @relation(fields: [sale_id], references: [id])
+
+  sale    sales  @relation(fields: [sale_id], references: [id])
   sale_id String
 }
 
-/*   TODO: IMPLEMENT BIDS FOR SALES */
+/**
+ * TODO: IMPLEMENT BIDS FOR SALES
+ */
