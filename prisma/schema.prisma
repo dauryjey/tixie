@@ -12,6 +12,7 @@ model users {
   name         String
   identity_doc String @unique
   email        String @unique
+  password     String
 
   sales sales[]
 

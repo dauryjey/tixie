@@ -3,10 +3,20 @@ package main
 import (
 	"auth/config"
 	"fmt"
+	"net/http"
+	"os"
 )
 
 func main() {
 	config.InitGlobalEnv()
 
-	fmt.Println("Hello auth!")
+	mux := http.NewServeMux()
+	port := os.Getenv("AUTH_PORT")
+
+	if port == "" {
+		port = "8080"
+	}
+
+	fmt.Printf("Server running on http://localhost:%s", port)
+	http.ListenAndServe(port, mux)
 }

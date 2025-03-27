@@ -1,4 +1,4 @@
-package utils
+package db
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ var (
 	DB_PASS string
 )
 
-func DbConnection() *gorm.DB {
+func Connection() *gorm.DB {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s",
 		os.Getenv("DB_HOST"),
