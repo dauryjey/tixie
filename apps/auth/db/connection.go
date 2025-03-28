@@ -3,7 +3,8 @@ package db
 import (
 	"fmt"
 	"log"
-	"os"
+
+	"auth/utils"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -17,14 +18,14 @@ var (
 	DB_PASS string
 )
 
-func Connection() *gorm.DB {
+func Connection() (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASS"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PORT"),
+		utils.GetEnv("DB_HOST"),
+		utils.GetEnv("DB_USER"),
+		utils.GetEnv("DB_PASS"),
+		utils.GetEnv("DB_NAME"),
+		utils.GetEnv("DB_PORT"),
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -33,5 +34,5 @@ func Connection() *gorm.DB {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
-	return db
+	return db, err
 }
