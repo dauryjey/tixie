@@ -16,11 +16,8 @@ model users {
 
   sales sales[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  /**
-   * TODO: IMPLEMENT AUTH
-   */
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model sales {
