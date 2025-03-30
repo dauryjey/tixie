@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -13,7 +12,7 @@ type JWTPayload struct {
 	Email  string
 }
 
-func GenerateJWT(payload JWTPayload) string {
+func GenerateJWT(payload JWTPayload) (*string, error) {
 	appEnv := GetEnv("APP_ENV")
 
 	var (
@@ -43,8 +42,8 @@ func GenerateJWT(payload JWTPayload) string {
 	signedToken, err := token.SignedString(key)
 
 	if err != nil {
-		log.Fatal("Something wrong happened.")
+		return nil, err
 	}
 
-	return signedToken
+	return &signedToken, err
 }

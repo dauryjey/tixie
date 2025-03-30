@@ -81,7 +81,14 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		UserID: newUser.ID,
 	}
 
-	response := SignupResponse{Token: fmt.Sprintf("Bearer %s", utils.GenerateJWT(jwtPayload))}
+	jwt, err := utils.GenerateJWT(jwtPayload)
+
+	if err != nil {
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Something wrong happened.")
+		return
+	}
+
+	response := SignupResponse{Token: fmt.Sprintf("Bearer %s", *jwt)}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
