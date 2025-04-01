@@ -16,23 +16,32 @@ type signupPayload struct {
 	models.OptionalBase
 }
 
-type SignupResponse struct {
+type signupResponse struct {
+	Token string `json:"token"`
+}
+
+type loginPayload struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type loginResponse struct {
 	Token string `json:"token"`
 }
 
 func Signup(w http.ResponseWriter, r *http.Request) {
 	var payload signupPayload
 
-	err := json.NewDecoder(r.Body).Decode(&payload)
+	payloadErr := json.NewDecoder(r.Body).Decode(&payload)
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if payloadErr != nil {
+		http.Error(w, payloadErr.Error(), http.StatusBadRequest)
 		return
 	}
 
-	db, err := db.Connection()
+	db, dbErr := db.Connection()
 
-	if err != nil {
+	if dbErr != nil {
 		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Something wrong happened.")
 		return
 	}
@@ -81,16 +90,77 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		UserID: newUser.ID,
 	}
 
-	jwt, err := utils.GenerateJWT(jwtPayload)
+	jwt, jwtErr := utils.GenerateJWT(jwtPayload)
 
-	if err != nil {
+	if jwtErr != nil {
 		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Something wrong happened.")
 		return
 	}
 
-	response := SignupResponse{Token: fmt.Sprintf("Bearer %s", *jwt)}
+	response := signupResponse{Token: fmt.Sprintf("Bearer %s", *jwt)}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
+}
+
+func Login(w http.ResponseWriter, r *http.Request) {
+	var payload loginPayload
+
+	payloadErr := json.NewDecoder(r.Body).Decode(&payload)
+
+	if payloadErr != nil {
+		http.Error(w, payloadErr.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var foundUser models.User
+
+	where := models.User{
+		Email: payload.Email,
+	}
+
+	db, dbErr := db.Connection()
+
+	if dbErr != nil {
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Something wrong happened.")
+		return
+	}
+
+	queryResult := db.Limit(1).Find(&foundUser, where)
+
+	if queryResult.Error != nil {
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Something wrong happened.")
+		return
+	}
+
+	if queryResult.RowsAffected == 0 {
+		utils.WriteErrorResponse(w, http.StatusNotFound, "User not found.")
+		return
+	}
+
+	comparePasswordErr := bcrypt.CompareHashAndPassword([]byte(foundUser.Password), []byte(payload.Password))
+
+	if comparePasswordErr != nil {
+		utils.WriteErrorResponse(w, http.StatusUnauthorized, "Your password is wrong.")
+		return
+	}
+
+	jwtPayload := utils.JWTPayload{
+		Email:  payload.Email,
+		UserID: foundUser.ID,
+	}
+
+	jwt, jwtErr := utils.GenerateJWT(jwtPayload)
+
+	if jwtErr != nil {
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Something wrong happened.")
+		return
+	}
+
+	response := loginResponse{Token: fmt.Sprintf("Bearer %s", *jwt)}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }

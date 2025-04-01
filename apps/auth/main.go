@@ -24,6 +24,16 @@ func main() {
 		}
 	})
 
+	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			handlers.Login(w, r)
+
+		default:
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
 	fmt.Printf("Server running on http://localhost:%s", port)
 	http.ListenAndServe(":"+port, mux)
 }
