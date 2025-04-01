@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"auth/types"
 	"fmt"
 	"time"
 
@@ -13,7 +14,7 @@ type JWTPayload struct {
 }
 
 func GenerateJWT(payload JWTPayload) (*string, error) {
-	appEnv := GetEnv("APP_ENV")
+	appEnv := types.ENV(GetEnv("APP_ENV"))
 
 	var (
 		key         []byte
@@ -22,7 +23,7 @@ func GenerateJWT(payload JWTPayload) (*string, error) {
 		issuer      string
 	)
 
-	if appEnv == "production" {
+	if appEnv == types.Production {
 		issuer = ""
 	} else {
 		issuer = fmt.Sprintf("http://localhost:%s", GetEnv("AUTH_PORT"))
